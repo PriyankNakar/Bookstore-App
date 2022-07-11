@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+{%load static%}
+
+<head>
+<!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>Add Book</title>
+</head>
+
+<body class="bg-light">
+    <nav class="navbar  navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="{%url 'index'%}"><img
+          src="{% static 'storefront/images/book.png' %}" width="50px" alt=""></a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse " id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto" >
+            <li class="nav-item ">
+              <a class="nav-link ml-3" href="{% url 'index'%}">Home <span class="sr-only">(current)</span></a>
+            </li>
+            
+            {% if user.is_superuser%}
+            <li class="nav-item ml-3">
+              <a class="nav-link" href="{%url 'addbook' %}">Add book</a>
+            </li>
+            {%endif%}
+            <li class="nav-item ml-3">
+              <a class="nav-link" href="{%url 'logout' %}">Logout</a>
+            </li>
+            <li class="nav-item ml-3 bg-light d-flex align-items-center" >
+              <a class="nav-link bg-light d-flex align-items-center justify-content-center p-2"  href="{%url 'cart' %}"  ><img src="{% static 'storefront/images/cart.png' %}" width="26px" class="img-fluid">&nbsp;<span id="cartcount" class="badge badge-light">{{cartlen}}</span></a>
+            </li>
+            
+          </ul>
+          <form  class="form-inline my-2 my-lg-0" action="{% url 'searchbook' %}" method="POST">
+            {%csrf_token%}
+            <input id="search" class="form-control mr-sm-2" placeholder="Search Books" name="bookname" type="text"> 
+            
+            <button id="searchbutton" class="btn btn-outline-light my-2 my-sm-0" >search</button>
+        </form>
+        </div>
+        
+        
+      </nav>
+    <div class="p-5 mt-5 bg-light text-center" style="max-width: 600px;margin:auto">
+      <table>
+        <form action="{% url 'bookadd' %}" enctype='multipart/form-data' method="POST">
+{% csrf_token %}
+<tr>
+    <td colspan="2"><h1 class="text-center" >Add Book</h1></td>
+</tr>
+
+            <tr>                             
+               <td><label for="colFormLabelSm" class="mr-5  text-nowrap  col-sm-2 col-form-label col-form-label-sm ">Book Title</label>
+                </td>
+                <td class="p-3"><input  name="title" type="text" class=" ml-5  form-control form-control-sm" id="colFormLabelSm" placeholder="Title"></td>
+                    
+                
+        </tr>
+        <tr>
+            <td>
+                <label for="colFormLabel"  class=" mr-5 col-sm-2 text-nowrap col-form-label">Book Price</label>
+            </td>  
+            <td class="p-3">
+                    <input name="price" type="number" class=" ml-5 form-control " id="colFormLabel"min=0 placeholder="Price">
+                </td>   
+        </tr>
+            <tr>
+                <td > <label for="colFormLabelSm" class="mr-5 text-nowrap  col-sm-2 col-form-label col-form-label-sm">Book
+                    Description</label></td>
+                <td class="p-3"><input name="desc" type="text" class= " ml-5 form-control form-control-lg" id="colFormLabellg"
+                    placeholder="Description"></td>
+            </tr>
+               
+                <tr>
+                    <td ><label for="colFormLabelSm" class="  col-sm-2 col-form-label col-form-label-sm mr-5 text-nowrap">Upload Book Image</label>
+                        </td>
+                    <td><input type="file" class=" ml-5  p-3" id="colFormLabel" name="image" id="image"></td>
+                </tr>
+                <tr>
+                    <td class="p-3 text-center" colspan="2">
+                            <input type="submit" class="btn btn-primary"  value="Submit">
+                    </td>
+                    
+                </tr>
+                
+            </div>
+        </form>
+    </table>
+    </div>
+
+    
+
+
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    
+   
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js"
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>

@@ -1,0 +1,293 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+{% block content %}
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bookstore | Home</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+  <style>
+    * {
+      margin: 0%;
+      padding: 0%;
+    }
+
+    main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 10%;
+    }
+
+    main>div {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      align-items: center;
+      justify-content: center;
+      width: 18%;
+      height: 10%;
+      margin-top: 10%;
+
+      margin: 7%;
+
+    }
+
+
+
+
+
+
+
+    p>a>img {
+      margin: 2%;
+    }
+
+
+
+
+
+
+
+
+    * {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    main div p {
+      padding: 5%;
+
+
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    main div h4 {
+      padding: 5%;
+    }
+
+    main div img {
+      padding: 5%;
+      max-height: 200%;
+
+    }
+  </style>
+  <script>
+
+    document.addEventListener('DOMContentLoaded', () => {
+      $("#logout").bind("click", function(){
+        localStorage.clear()
+      });
+      if (localStorage.getItem('cart') == null) {
+        var cart = {};
+      } 
+      else {
+        cart = JSON.parse(localStorage.getItem('cart'));
+      }
+      var csrftoken = '{{ csrf_token }}';
+
+      document.querySelectorAll(".cart").forEach((element) => {
+        element.addEventListener('click', () => {
+          flag = false
+          x = parseInt(document.querySelector('#cartcount').innerHTML)
+          for (const [key, value] of Object.entries(cart)) {
+            if (element.dataset.book == key) {
+              
+              flag = true
+            }
+          }
+          if (flag == true) { 
+            document.querySelector("#exampleModalLongTitle").innerHTML='Already In Cart'
+            document.querySelector("#cartmessage").innerHTML='The requested item is already in cart'
+          }
+          else {
+            document.querySelector("#exampleModalLongTitle").innerHTML='Added to Cart'
+            document.querySelector("#cartmessage").innerHTML='Item Successfully added to Cart'
+            document.querySelector('#cartcount').innerHTML = x + 1
+            if(cart[element.dataset.book]==undefined){
+              cart[element.dataset.book]=1
+            }else{
+              cart[element.dataset.book]+=1
+            }
+            localStorage.setItem('cart', JSON.stringify(cart));
+            
+            $.ajax({
+              type: "POST",
+              url: "{% url 'addtocart' %}",
+              dataType: 'json',
+              data: element.dataset.book,
+              headers: {
+                'X-CSRFToken': csrftoken
+              },
+              success: function (resp) {
+                alert("resp: " + resp.name);
+              }
+
+            });
+          }
+
+        })
+      })
+    })
+
+    $('#myModal').on('shown.bs.modal', function () {
+      $('#myInput').trigger('focus')
+    })
+  </script>
+</head>
+
+<body>
+
+  <nav class="navbar  navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="{%url 'index'%}"><img src="{% static 'storefront/images/book.png' %}" width="50px"
+        alt=""></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse " id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto">
+        <li class="nav-item ">
+          <a class="nav-link ml-3" href="{% url 'index'%}">Home <span class="sr-only">(current)</span></a>
+        </li>
+
+        {% if user.is_superuser%}
+        <li class="nav-item ml-3">
+          <a class="nav-link" href="{%url 'addbook' %}">Add book</a>
+        </li>
+        {%endif%}
+        <li class="nav-item ml-3">
+          <a class="nav-link" id="logout" href="{%url 'logout' %}">Logout</a>
+        </li>
+        <li class="nav-item ml-3 bg-light d-flex align-items-center">
+          <a class="nav-link bg-light d-flex align-items-center justify-content-center p-2" href="{%url 'cart' %}"><img
+              src="{% static 'storefront/images/cart.png' %}" width="26px" class="img-fluid">&nbsp;<span id="cartcount"
+              class="badge badge-light">{{cartlen}}</span></a>
+        </li>
+
+      </ul>
+      <form class="form-inline my-2 my-lg-0" action="{% url 'searchbook' %}" method="POST">
+        {%csrf_token%}
+        <input id="search" class="form-control mr-sm-2" placeholder="Search Books" name="bookname" type="text">
+
+        <button id="searchbutton" class="btn btn-outline-light my-2 my-sm-0">search</button>
+      </form>
+    </div>
+
+
+  </nav>
+  {% if not searchItems %}
+  <div class="bg-light d-flex text-center   align-items-center  justify-content-center"
+    style="flex-direction:column;height:100vh;background-image: url(/static/storefront/images/bgimage.jpg); background-attachment: fixed;"
+    id="storetext">
+
+    <h1 style="color: white;">Welcome To The Bookstore</h1>
+    <a class="btn btn-light btn-lg " href="#viewbooks" role="button" aria-expanded="false" aria-controls="collapseExample">
+      Get Started
+    </a>
+
+
+
+  </div>
+  {% endif%}
+
+  <!-- Modal -->
+  <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle"
+    aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLongTitle">Added to Cart</h5>
+          <button type="button" class="close " data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body" id="cartmessage">
+          Item Successfully added to Cart
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+  {%if searchItems %}
+  <h1 style="text-align: center; margin-top:5%">Searched Items:</h1>
+  <main class="books">
+
+    {% for item in searchItems %}
+    <div class="card" style="width: 18rem;"><img class="card-img-top" src="{{ item.book_Image.url }}" alt="">
+      <h4 class="card-title">{{item.book_title}} </h4>
+      <p class="card-text text-wrap">{{item.book_desc}}</p>
+      &#8377; {{item.book_price}}
+      <button class=" cart btn btn-outline-dark" data-toggle="modal" data-target="#exampleModalCenter"
+        data-book={{item.id}}>Add to Cart</button>
+      <br>
+      <br>
+    </div>
+    {%endfor%}
+  </main>
+
+  {%else%}
+  <main class="books" id="viewbooks">
+    {% for product in products %}
+
+    <div class="card" style="width: 18rem;"><img class="card-img-top" src="{{ product.book_Image.url }}" alt="">
+      <h4 class="card-title">{{product.book_title}} </h4>
+      <p class="card-text text-wrap">{{product.book_desc}}</p>
+      &#8377; {{product.book_price}}
+      <button class=" cart btn btn-outline-dark" data-toggle="modal" data-target="#exampleModalCenter"
+        data-book={{product.id}}>Add to Cart</button>
+      <br>
+      <br>
+    </div>
+    {% endfor %}
+  </main>
+  {%endif%}
+  <div class="bg-dark">
+    <div class="container">
+      <footer class="py-3 ">
+        <ul class="nav justify-content-center border-bottom   pb-3 mb-3">
+          <li class="nav-item"><a href="{%url 'index'%}" class="nav-link px-2 text-white">Home</a></li>
+          <li class="nav-item"><a href="{%url 'cart'%}" class="nav-link px-2 text-white">Cart</a></li>
+          <li class="nav-item"><a href="{%url 'logout'%}" class="nav-link px-2 text-white">Logout</a></li>
+
+        </ul>
+        <p class="text-center  text-white">
+          Bookstore Since 2022 provides various types of book ranging from academics to novels and manga. <br>
+          we sell books from legitimate sellers and also monitor and help customer orders through our help line.
+          for contacting us:
+          <br>
+          <br>
+          © 2022 Bookstore Pvt Ltd.
+        </p>
+
+
+      </footer>
+
+    </div>
+  </div>
+
+
+
+</body>
+
+{% endblock %}
+
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js"
+  integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+  integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+
+</html>

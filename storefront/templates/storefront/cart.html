@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+{%load static%}
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<style>
+
+</style>
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css"
+    integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <title>Cart</title>
+  <script>
+    function total() {
+      totalv = 0
+      document.querySelectorAll(".price").forEach(function (element) {
+        quant = document.getElementById(element.dataset.id).value
+        totalv += quant * (element.innerHTML)
+      })
+      document.querySelector("#total").innerHTML = `Total=${totalv}`
+    }
+    if (localStorage.getItem('cart') == null) {
+        var cart = {};
+      } 
+      else {
+        cart = JSON.parse(localStorage.getItem('cart'));
+      }
+    cartlen=parseInt('{{cartlen}}')
+      
+    document.addEventListener('DOMContentLoaded', () => {
+      if (cartlen!=0){
+        total()
+      }
+    
+      
+      
+      document.querySelectorAll(".button").forEach(function (element) {
+        element.onclick = function () {
+          element.parentElement.parentElement.remove()
+          
+          if (cartlen==0){
+          document.querySelector("#noitem").style.display='block'
+          document.querySelector("table").style.display='none'
+          document.querySelector("#total").style.display='none'
+          
+          }
+          else{
+            val=document.querySelector('#cartcount')
+            delete cart[element.dataset.book]
+            localStorage.setItem('cart',JSON.stringify(cart))
+            cartitem=parseInt(val.innerHTML)-1
+            val.innerHTML=cartitem
+            cartlen-=1
+          total()
+          var csrftoken = '{{ csrf_token }}';
+          $.ajax({
+            type: "POST",
+            url: "{% url 'deleteelement' %}",
+            dataType: 'json',
+            data: element.dataset.book,
+            headers: {
+              'X-CSRFToken': csrftoken
+            },
+            success: function (resp) {
+              alert("resp: " + resp.name);
+            }
+
+          });
+        }
+        if (cartlen==0){
+          document.querySelector("#noitem").style.display='block'
+          document.querySelector("table").style.display='none'
+          document.querySelector("#total").style.display='none'
+          
+          }
+      }
+      })
+      
+      $("[name='quantity']").on('input',function () {
+      
+      if(event.target.value>10){
+        event.target.value=1
+      }
+      else if(event.target.value<1){
+        event.target.value=10
+      }
+      
+      total()
+      
+    });
+    
+    }
+    )
+    
+    
+    
+     
+  </script>
+  <style>
+    
+    .button{
+      opacity: 0.5;
+      border-color:transparent;
+      background-color: red;
+      color: white;
+      border-radius:4px ;
+    }
+    .button:hover{
+      opacity: 1;
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar  navbar-expand-lg navbar-dark bg-dark">
+    <a class="navbar-brand" href="{%url 'index'%}"><img
+      src="{% static 'storefront/images/book.png' %}" width="50px" alt=""></a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  
+    <div class="collapse navbar-collapse " id="navbarSupportedContent">
+      <ul class="navbar-nav mr-auto" >
+        <li class="nav-item ">
+          <a class="nav-link ml-3" href="{% url 'index'%}">Home <span class="sr-only">(current)</span></a>
+        </li>
+        
+        {% if user.is_superuser%}
+        <li class="nav-item ml-3">
+          <a class="nav-link" href="{%url 'addbook' %}">Add book</a>
+        </li>
+        {%endif%}
+        <li class="nav-item ml-3">
+          <a class="nav-link" href="{%url 'logout' %}">Logout</a>
+        </li>
+        <li class="nav-item ml-3 bg-light d-flex align-items-center" >
+          <a class="nav-link bg-light d-flex align-items-center justify-content-center p-2"  href="{%url 'cart' %}"  ><img src="{% static 'storefront/images/cart.png' %}" width="26px" class="img-fluid">&nbsp;<span id="cartcount" class="badge badge-light">{{cartlen}}</span></a>
+        </li>
+        
+      </ul>
+      <form  class="form-inline my-2 my-lg-0" action="{% url 'searchbook' %}" method="POST">
+        {%csrf_token%}
+        <input id="search" class="form-control mr-sm-2" placeholder="Search Books" name="bookname" type="text"> 
+        
+        <button id="searchbutton" class="btn btn-outline-light my-2 my-sm-0" >search</button>
+    </form>
+    </div>
+    
+    
+  </nav>
+  <div id="noitem" class="" style="display: none;">
+    <h3 class="text-center p-3 mt-3">Your cart Is Empty</h3>
+    
+    <p class="text-center p-2 mt-3">To add books to cart click below <br>
+    <a class="btn btn-dark mt-3" href="{%url 'index'%}">Add books</a> </p>
+  </div>
+  {%if cartlen%}
+  <table class="table table-hover 
+  ">
+    <thead>
+      <tr>
+        <th scope="col">Cover Image</th>
+        <th scope="col">Title</th>
+        <th scope="col">Quantity</th>
+        <th scope="col">Price</th>
+      </tr>
+    </thead>
+    <tbody >
+      {% for item in cart_item %}
+      <tr>
+        <th scope="row"><img src="{{item.book_Image.url}}" width="100px" alt=""></th>
+        <td>{{item.book_title}}</td>
+
+        <td><input type="number" name="quantity" min="1" max="10"  id="{{item.id}}"></td>
+        <td ><p class="price" data-id="{{item.id}}">{{item.book_price}}</p></td>
+        <td><button class="button" data-book="{{item.id}}">x</button></td>
+      </tr>
+      
+      {% endfor%}
+      <tr>
+        <td colspan="5" > <h1 id="total" class="text-right mr-5">Total</h1>  </td>
+        
+      </tr>
+      
+      {%for keys,val in quant.items%}
+      <script>
+        document.getElementById('{{keys}}').value = '{{val}}'
+      </script>
+      {%endfor%}
+    
+    </tbody>
+    
+
+  </table>
+  
+  
+  <!-- Optional JavaScript -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  
+
+{%else%}
+  <script>
+    document.querySelector("#noitem").style.display='block'
+  </script>
+{%endif%}
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js"
+    integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js"
+    integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>

@@ -1,0 +1,113 @@
+{% extends "users/Login.html" %}
+{% block content %}
+<script>
+
+    $( document ).ready(function() {
+        $("#signinform").hide()
+        $("#signup").css("background-color","white");
+            $("#signup").css("color","blue");
+        $("#signin").css("opacity","0.5");
+        $("#signup").click(function(){
+            $("#signinform").hide()
+            $("#signupform").show()
+            document.title = 'Sign Up | Bookstore';
+            $("#signup").css("opacity","1");
+            $("#signin").css("opacity","0.5");
+            $("#signup").css("background-color","white");
+            $("#signup").css("color","blue");
+            $("#signin").css("background-color","#007bff");
+            $("#signin").css("color","white");
+            
+        })
+        $('#signupform').click(function(){
+                $("#message").html("")
+            })
+        $("#signin").click(function(){
+            $("#signinform").show()
+            $("#signupform").hide()
+            document.title = 'Sign In | Bookstore';
+            $("#signin").css("background-color","white");
+            $("#signin").css("color","blue");
+            $("#signin").css("opacity","1");
+            $("#signup").css("opacity","0.5");
+            $("#signup").css("background-color","#007bff");
+            $("#signup").css("color","white");
+        })
+        $("#signin_form").validate({
+                // in 'rules' user have to specify all the constraints for respective fields
+                rules: {
+                    
+                    "username-login": {
+                        required: true,
+                        minlength:1
+                    },
+                    "password-login": {
+                        required: true,
+                        minlength:8
+                        
+                        
+                    },
+                    // confirm_password: {
+                    //     required: true,
+                    //     minlength: 5,
+                    //     equalTo: "#password" //for checking both passwords are same or not
+                    // },
+                    
+                },
+                // in 'messages' user have to specify message as per rules
+                messages: {
+                    
+                    "username-login": {
+                        required: " Please enter a username",
+                        minlength: " Your username must consist of at least 1 characters"
+                    },
+                    "password-login": {
+                        required: " Please enter a password",
+                        minlength: " Your password must be consist of at least 8 characters"
+                    },
+                    
+                }
+            });
+            $("#signup_form").validate({
+                // in 'rules' user have to specify all the constraints for respective fields
+                rules: {
+                    
+                    "username-signup": {
+                        required: true,
+                        minlength:1
+                    },
+                    "password-signup": {
+                        required: true,
+                        minlength:8
+
+                        
+                    },
+                    "password2-signup":{
+                        required: true,
+                        equalTo:"#password-signup"
+                    }
+                    
+                    
+                },
+                // in 'messages' user have to specify message as per rules
+                messages: {
+                    
+                    "username-signup": {
+                        required: " Please enter a username",
+                        minlength: " Your username must consist of at least 1 characters"
+                    },
+                    "password-signup": {
+                        required: " Please enter a password",
+                        minlength: " Your password must be consist of at least 8 characters"
+                    },
+                    "password2-signup": {
+                        required: " Please enter your password again",
+                        equalTo: "Passwords Didn't matched please fill correctly"
+                    },
+                    
+                }
+            });
+    })
+        
+</script>
+{% endblock %}
